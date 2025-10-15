@@ -1,0 +1,12 @@
+flask
+flask-cors
+flask-sqlalchemy
+python-dotenv
+werkzeug
+transformers
+torch
+sentencepiece
+accelerate
+numpy
+scikit-learn
+

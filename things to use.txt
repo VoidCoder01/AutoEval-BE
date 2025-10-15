@@ -1,0 +1,3 @@
+UniXCoder → main embeddings & scoring (works for both docs + code).
+
+CodeLlama → optional reasoning for code, e.g., “Explain why this project scored 8/10 on technical complexity.”

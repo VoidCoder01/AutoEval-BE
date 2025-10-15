@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results - AutoEval</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">⚡ AutoEval</div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/host">Host Dashboard</a></li>
+                    <li><a href="/participant">Submit Project</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="hero" style="padding: 3rem 2rem;">
+        <h1>Evaluation Results</h1>
+        <p>AI-powered scoring and feedback</p>
+    </div>
+
+    <div class="container">
+        <!-- Single Submission Results -->
+        <div id="submission-results" class="hidden">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2 class="card-title" id="project-title"></h2>
+                        <p style="color: var(--text-secondary); margin-top: 0.5rem;" id="team-info"></p>
+                    </div>
+                </div>
+                
+                <div id="results-content"></div>
+            </div>
+        </div>
+
+        <!-- Leaderboard -->
+        <div id="leaderboard-section" class="hidden">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title" id="hackathon-title"></h2>
+                </div>
+                <div id="leaderboard-content"></div>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading-state">
+            <div class="card">
+                <div style="text-align: center; padding: 3rem;">
+                    <div class="spinner" style="width: 60px; height: 60px;"></div>
+                    <p style="margin-top: 1rem; color: var(--text-secondary);">Loading results...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error State -->
+        <div id="error-state" class="hidden">
+            <div class="card">
+                <div class="alert alert-danger">
+                    Results not found or not yet available.
+                    <a href="/" style="color: var(--danger-color); text-decoration: underline;">Go back home</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const submissionId = urlParams.get('submission_id');
+            const hackathonId = urlParams.get('hackathon_id');
+
+            if (submissionId) {
+                loadSubmissionResults(submissionId);
+            } else if (hackathonId) {
+                loadLeaderboard(hackathonId);
+            } else {
+                showError();
+            }
+        });
+
+        async function loadSubmissionResults(submissionId) {
+            try {
+                const response = await fetch(`/api/results/${submissionId}`);
+                
+                if (!response.ok) {
+                    showError();
+                    return;
+                }
+                
+                const data = await response.json();
+                displaySubmissionResults(data);
+            } catch (error) {
+                console.error('Error loading results:', error);
+                showError();
+            }
+        }
+
+        function displaySubmissionResults(data) {
+            document.getElementById('loading-state').classList.add('hidden');
+            document.getElementById('submission-results').classList.remove('hidden');
+            
+            document.getElementById('project-title').textContent = data.project_name;
+            document.getElementById('team-info').textContent = 
+                `Team: ${data.team_name} • Submitted: ${new Date(data.submitted_at).toLocaleString()}`;
+            
+            const evaluation = data.evaluation;
+            const detailedScores = JSON.parse(evaluation.detailed_scores || '{}');
+            
+            document.getElementById('results-content').innerHTML = `
+                <!-- Overall Score -->
+                <div class="score-card" style="margin: 2rem 0;">
+                    <div class="score-label">Overall Score</div>
+                    <div class="score-value">${evaluation.overall_score.toFixed(1)}/10</div>
+                    <div class="progress-bar" style="background: rgba(255,255,255,0.3);">
+                        <div class="progress-fill" style="width: ${evaluation.overall_score * 10}%; background: white;"></div>
+                    </div>
+                </div>
+
+                <!-- Score Breakdown -->
+                <div class="score-breakdown">
+                    <div class="score-item">
+                        <div class="score-item-label">📊 Relevance</div>
+                        <div class="score-item-value">${evaluation.relevance_score.toFixed(1)}</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${evaluation.relevance_score * 10}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="score-item">
+                        <div class="score-item-label">💻 Technical Complexity</div>
+                        <div class="score-item-value">${evaluation.technical_complexity_score.toFixed(1)}</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${evaluation.technical_complexity_score * 10}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="score-item">
+                        <div class="score-item-label">✨ Creativity</div>
+                        <div class="score-item-value">${evaluation.creativity_score.toFixed(1)}</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${evaluation.creativity_score * 10}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="score-item">
+                        <div class="score-item-label">📝 Documentation</div>
+                        <div class="score-item-value">${evaluation.documentation_score.toFixed(1)}</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${evaluation.documentation_score * 10}%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Feedback -->
+                <div style="margin-top: 2rem; padding: 1.5rem; background: var(--light-bg); border-radius: 0.5rem; border-left: 4px solid var(--primary-color);">
+                    <h3 style="font-weight: 700; margin-bottom: 1rem;">🤖 AI Feedback</h3>
+                    <p style="color: var(--text-secondary); white-space: pre-wrap; line-height: 1.8;">${evaluation.feedback}</p>
+                </div>
+
+                <!-- Detailed Justifications -->
+                ${Object.keys(detailedScores).length > 0 ? `
+                    <div style="margin-top: 2rem;">
+                        <h3 style="font-weight: 700; margin-bottom: 1rem;">Detailed Evaluation</h3>
+                        ${Object.entries(detailedScores).map(([key, value]) => `
+                            <div style="margin-bottom: 1rem; padding: 1rem; background: white; border-radius: 0.5rem; border: 1px solid var(--border-color);">
+                                <strong style="color: var(--primary-color);">${formatKey(key)}:</strong>
+                                <p style="color: var(--text-secondary); margin-top: 0.5rem;">${value}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+
+                <!-- Actions -->
+                <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center;">
+                    <a href="/results?hackathon_id=${data.hackathon_id}" class="btn btn-primary">
+                        View Leaderboard
+                    </a>
+                    <a href="/participant" class="btn btn-secondary">
+                        Submit Another Project
+                    </a>
+                </div>
+            `;
+        }
+
+        async function loadLeaderboard(hackathonId) {
+            try {
+                const response = await fetch(`/api/leaderboard/${hackathonId}`);
+                
+                if (!response.ok) {
+                    showError();
+                    return;
+                }
+                
+                const data = await response.json();
+                displayLeaderboard(data);
+            } catch (error) {
+                console.error('Error loading leaderboard:', error);
+                showError();
+            }
+        }
+
+        function displayLeaderboard(data) {
+            document.getElementById('loading-state').classList.add('hidden');
+            document.getElementById('leaderboard-section').classList.remove('hidden');
+            
+            document.getElementById('hackathon-title').innerHTML = `
+                🏆 ${data.hackathon.name} Leaderboard
+            `;
+            
+            if (data.leaderboard.length === 0) {
+                document.getElementById('leaderboard-content').innerHTML = `
+                    <p style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                        No evaluated submissions yet.
+                    </p>
+                `;
+                return;
+            }
+            
+            document.getElementById('leaderboard-content').innerHTML = `
+                <div class="table" style="overflow-x: auto;">
+                    <table style="width: 100%;">
+                        <thead>
+                            <tr>
+                                <th style="width: 60px;">Rank</th>
+                                <th>Team</th>
+                                <th>Project</th>
+                                <th style="width: 120px;">Score</th>
+                                <th style="width: 100px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.leaderboard.map((entry, index) => `
+                                <tr style="${index < 3 ? 'background: linear-gradient(90deg, rgba(99,102,241,0.05), transparent);' : ''}">
+                                    <td>
+                                        <div style="display: flex; align-items: center; justify-content: center;">
+                                            ${getRankBadge(entry.rank)}
+                                        </div>
+                                    </td>
+                                    <td><strong>${entry.team_name}</strong></td>
+                                    <td>${entry.project_name}</td>
+                                    <td>
+                                        <span style="font-size: 1.25rem; font-weight: 700; color: var(--primary-color);">
+                                            ${entry.overall_score.toFixed(1)}
+                                        </span>
+                                        <span style="color: var(--text-secondary);">/10</span>
+                                    </td>
+                                    <td>
+                                        <a href="/results?submission_id=${entry.submission_id}" class="btn btn-primary btn-sm">
+                                            View
+                                        </a>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="margin-top: 2rem; text-align: center;">
+                    <a href="/participant?hackathon_id=${data.hackathon.id}" class="btn btn-primary">
+                        Submit Your Project
+                    </a>
+                </div>
+            `;
+        }
+
+        function getRankBadge(rank) {
+            if (rank === 1) return '<span style="font-size: 1.5rem;">🥇</span>';
+            if (rank === 2) return '<span style="font-size: 1.5rem;">🥈</span>';
+            if (rank === 3) return '<span style="font-size: 1.5rem;">🥉</span>';
+            return `<strong>${rank}</strong>`;
+        }
+
+        function formatKey(key) {
+            return key.split('_').map(word => 
+                word.charAt(0).toUpperCase() + word.slice(1)
+            ).join(' ');
+        }
+
+        function showError() {
+            document.getElementById('loading-state').classList.add('hidden');
+            document.getElementById('error-state').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
+

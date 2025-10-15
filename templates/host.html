@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Host Dashboard - AutoEval</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">⚡ AutoEval</div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/host">Host Dashboard</a></li>
+                    <li><a href="/participant">Submit Project</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="hero" style="padding: 3rem 2rem;">
+        <h1>Host Dashboard</h1>
+        <p>Create and manage your hackathons</p>
+    </div>
+
+    <div class="container">
+        <div class="grid grid-2">
+            <!-- Create Hackathon Form -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Create New Hackathon</h2>
+                </div>
+                <form id="create-hackathon-form">
+                    <div class="form-group">
+                        <label class="form-label">Hackathon Name</label>
+                        <input type="text" name="name" class="form-control" required 
+                               placeholder="AI Innovation Challenge 2025">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Description / Theme</label>
+                        <textarea name="description" class="form-control" required 
+                                  placeholder="Build an AI-powered solution that solves a real-world problem..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Evaluation Prompt</label>
+                        <textarea name="evaluation_prompt" class="form-control" required 
+                                  placeholder="Evaluate projects based on innovation, technical implementation, and real-world impact..."></textarea>
+                        <small style="color: var(--text-secondary); display: block; margin-top: 0.5rem;">
+                            This prompt guides the AI in evaluating submissions
+                        </small>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Host Email</label>
+                        <input type="email" name="host_email" class="form-control" 
+                               placeholder="your@email.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Deadline (Optional)</label>
+                        <input type="datetime-local" name="deadline" class="form-control">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        Create Hackathon
+                    </button>
+                </form>
+
+                <div id="create-message" class="mt-2"></div>
+            </div>
+
+            <!-- My Hackathons List -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">My Hackathons</h2>
+                    <button onclick="loadMyHackathons()" class="btn btn-primary btn-sm">Refresh</button>
+                </div>
+                <div id="my-hackathons">
+                    <div style="text-align: center; padding: 2rem;">
+                        <div class="spinner"></div>
+                        <p style="margin-top: 1rem; color: var(--text-secondary);">Loading...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Submissions View -->
+        <div id="submissions-section" class="hidden">
+            <div class="card" style="margin-top: 2rem;">
+                <div class="card-header">
+                    <h2 class="card-title">Submissions</h2>
+                    <button onclick="closeSubmissions()" class="btn btn-secondary btn-sm">Close</button>
+                </div>
+                <div id="submissions-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load hackathons on page load
+        window.addEventListener('DOMContentLoaded', loadMyHackathons);
+
+        // Create hackathon form handler
+        document.getElementById('create-hackathon-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+            
+            const messageDiv = document.getElementById('create-message');
+            messageDiv.innerHTML = '<div class="spinner"></div>';
+            
+            try {
+                const response = await fetch('/api/hackathon', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    const hackathon = await response.json();
+                    messageDiv.innerHTML = `
+                        <div class="alert alert-success">
+                            Hackathon created successfully! <a href="/results?hackathon_id=${hackathon.id}">View it</a>
+                        </div>
+                    `;
+                    e.target.reset();
+                    loadMyHackathons();
+                } else {
+                    const error = await response.json();
+                    messageDiv.innerHTML = `
+                        <div class="alert alert-danger">
+                            Error: ${error.error || 'Failed to create hackathon'}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                messageDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        Error: ${error.message}
+                    </div>
+                `;
+            }
+        });
+
+        async function loadMyHackathons() {
+            try {
+                const response = await fetch('/api/hackathons');
+                const hackathons = await response.json();
+                
+                const container = document.getElementById('my-hackathons');
+                
+                if (hackathons.length === 0) {
+                    container.innerHTML = `
+                        <p style="text-align: center; color: var(--text-secondary); padding: 2rem;">
+                            No hackathons yet. Create your first one!
+                        </p>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = hackathons.map(h => `
+                    <div style="border-bottom: 1px solid var(--border-color); padding: 1rem 0;">
+                        <h4 style="font-weight: 700; margin-bottom: 0.5rem;">${h.name}</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 0.5rem;">
+                            ${h.submission_count || 0} submissions
+                        </p>
+                        <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                            <button onclick="viewSubmissions(${h.id})" class="btn btn-primary btn-sm">
+                                View Submissions
+                            </button>
+                            <a href="/results?hackathon_id=${h.id}" class="btn btn-secondary btn-sm">
+                                Leaderboard
+                            </a>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading hackathons:', error);
+            }
+        }
+
+        async function viewSubmissions(hackathonId) {
+            const section = document.getElementById('submissions-section');
+            const container = document.getElementById('submissions-list');
+            
+            section.classList.remove('hidden');
+            container.innerHTML = '<div style="text-align: center; padding: 2rem;"><div class="spinner"></div></div>';
+            
+            try {
+                const response = await fetch(`/api/hackathon/${hackathonId}/submissions`);
+                const submissions = await response.json();
+                
+                if (submissions.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--text-secondary);">No submissions yet</p>';
+                    return;
+                }
+                
+                container.innerHTML = `
+                    <div class="table" style="overflow-x: auto;">
+                        <table style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th>Team</th>
+                                    <th>Project</th>
+                                    <th>Submitted</th>
+                                    <th>Status</th>
+                                    <th>Score</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${submissions.map(s => `
+                                    <tr>
+                                        <td>${s.team_name}</td>
+                                        <td>${s.project_name}</td>
+                                        <td>${new Date(s.submitted_at).toLocaleString()}</td>
+                                        <td>
+                                            ${s.evaluated ? 
+                                                '<span class="badge badge-success">Evaluated</span>' : 
+                                                '<span class="badge badge-warning">Pending</span>'}
+                                        </td>
+                                        <td>
+                                            ${s.evaluation ? 
+                                                `<strong>${s.evaluation.overall_score.toFixed(1)}/10</strong>` : 
+                                                '-'}
+                                        </td>
+                                        <td>
+                                            ${s.evaluated ? 
+                                                `<a href="/results?submission_id=${s.id}" class="btn btn-primary btn-sm">View</a>` :
+                                                `<button onclick="evaluateSubmission(${s.id})" class="btn btn-success btn-sm">Evaluate</button>`}
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } catch (error) {
+                container.innerHTML = `<div class="alert alert-danger">Error loading submissions</div>`;
+            }
+        }
+
+        async function evaluateSubmission(submissionId) {
+            if (!confirm('Trigger AI evaluation for this submission?')) return;
+            
+            try {
+                const response = await fetch(`/api/evaluate/${submissionId}`, {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    alert('Evaluation completed!');
+                    const currentHackathonId = document.querySelector('[onclick^="viewSubmissions"]')?.getAttribute('onclick').match(/\d+/)[0];
+                    if (currentHackathonId) {
+                        viewSubmissions(parseInt(currentHackathonId));
+                    }
+                } else {
+                    alert('Evaluation failed. Please try again.');
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        function closeSubmissions() {
+            document.getElementById('submissions-section').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
+

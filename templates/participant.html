@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Project - AutoEval</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">⚡ AutoEval</div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/host">Host Dashboard</a></li>
+                    <li><a href="/participant">Submit Project</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="hero" style="padding: 3rem 2rem;">
+        <h1>Submit Your Project</h1>
+        <p>Upload your code and documentation for AI-powered evaluation</p>
+    </div>
+
+    <div class="container">
+        <div class="grid grid-2">
+            <!-- Submission Form -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Project Submission</h2>
+                </div>
+                <form id="submission-form" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label class="form-label">Select Hackathon</label>
+                        <select name="hackathon_id" id="hackathon-select" class="form-control" required>
+                            <option value="">Loading hackathons...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Team Name</label>
+                        <input type="text" name="team_name" class="form-control" required 
+                               placeholder="Team Awesome">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Team Email</label>
+                        <input type="email" name="participant_email" class="form-control" required 
+                               placeholder="team@example.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Project Name</label>
+                        <input type="text" name="project_name" class="form-control" required 
+                               placeholder="My Awesome Project">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Project Description</label>
+                        <textarea name="project_description" class="form-control" required 
+                                  placeholder="Describe your project, what it does, and how it works..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Upload Files</label>
+                        <div class="file-upload" id="file-upload-zone">
+                            <div class="file-upload-icon">📁</div>
+                            <p><strong>Click to upload</strong> or drag and drop</p>
+                            <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                                Upload code, documentation, README files, or a .zip archive
+                            </p>
+                            <input type="file" name="files" id="file-input" multiple 
+                                   style="display: none;" 
+                                   accept=".py,.js,.java,.cpp,.c,.txt,.md,.pdf,.zip,.html,.css,.json,.yml,.yaml">
+                        </div>
+                        <div id="file-list" class="mt-2"></div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        Submit Project
+                    </button>
+                </form>
+
+                <div id="submission-message" class="mt-2"></div>
+            </div>
+
+            <!-- Submission Guidelines -->
+            <div>
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">📋 Submission Guidelines</h2>
+                    </div>
+                    <div class="card-body">
+                        <h4 style="font-weight: 600; margin-bottom: 0.5rem;">What to Include:</h4>
+                        <ul style="margin-left: 1.5rem; color: var(--text-secondary);">
+                            <li>Source code files</li>
+                            <li>README.md with project documentation</li>
+                            <li>Setup/installation instructions</li>
+                            <li>Any additional documentation</li>
+                        </ul>
+
+                        <h4 style="font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem;">File Formats:</h4>
+                        <p style="color: var(--text-secondary);">
+                            .py, .js, .java, .cpp, .c, .html, .css, .md, .txt, .pdf, .zip
+                        </p>
+
+                        <h4 style="font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem;">Evaluation Criteria:</h4>
+                        <div class="score-breakdown" style="margin-top: 1rem;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 2rem; color: var(--primary-color);">📊</div>
+                                <div style="font-weight: 600; margin-top: 0.5rem;">Relevance</div>
+                                <div style="font-size: 0.75rem; color: var(--text-secondary);">Theme alignment</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 2rem; color: var(--primary-color);">💻</div>
+                                <div style="font-weight: 600; margin-top: 0.5rem;">Complexity</div>
+                                <div style="font-size: 0.75rem; color: var(--text-secondary);">Technical skill</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 2rem; color: var(--primary-color);">✨</div>
+                                <div style="font-weight: 600; margin-top: 0.5rem;">Creativity</div>
+                                <div style="font-size: 0.75rem; color: var(--text-secondary);">Innovation</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 2rem; color: var(--primary-color);">📝</div>
+                                <div style="font-weight: 600; margin-top: 0.5rem;">Documentation</div>
+                                <div style="font-size: 0.75rem; color: var(--text-secondary);">Quality & clarity</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 1rem;">
+                    <div class="card-header">
+                        <h2 class="card-title">⚡ What Happens Next?</h2>
+                    </div>
+                    <div class="card-body">
+                        <ol style="margin-left: 1.5rem; color: var(--text-secondary);">
+                            <li style="margin-bottom: 0.5rem;">Your submission is uploaded to the platform</li>
+                            <li style="margin-bottom: 0.5rem;">AI analyzes your code and documentation</li>
+                            <li style="margin-bottom: 0.5rem;">Scores are calculated across all criteria</li>
+                            <li style="margin-bottom: 0.5rem;">Results appear instantly with detailed feedback</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay hidden">
+        <div class="loading-content">
+            <div class="spinner" style="width: 60px; height: 60px;"></div>
+            <h3 style="margin-top: 1.5rem;">Submitting & Evaluating...</h3>
+            <p style="color: var(--text-secondary); margin-top: 0.5rem;">
+                AI is analyzing your project. This may take a minute.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        let selectedFiles = [];
+
+        // Load hackathons on page load
+        window.addEventListener('DOMContentLoaded', async () => {
+            await loadHackathons();
+            
+            // Check if hackathon_id is in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const hackathonId = urlParams.get('hackathon_id');
+            if (hackathonId) {
+                document.getElementById('hackathon-select').value = hackathonId;
+            }
+        });
+
+        async function loadHackathons() {
+            try {
+                const response = await fetch('/api/hackathons');
+                const hackathons = await response.json();
+                
+                const select = document.getElementById('hackathon-select');
+                
+                if (hackathons.length === 0) {
+                    select.innerHTML = '<option value="">No active hackathons</option>';
+                } else {
+                    select.innerHTML = '<option value="">Select a hackathon...</option>' +
+                        hackathons.map(h => 
+                            `<option value="${h.id}">${h.name}</option>`
+                        ).join('');
+                }
+            } catch (error) {
+                console.error('Error loading hackathons:', error);
+            }
+        }
+
+        // File upload handling
+        const fileInput = document.getElementById('file-input');
+        const fileUploadZone = document.getElementById('file-upload-zone');
+        const fileList = document.getElementById('file-list');
+
+        fileUploadZone.addEventListener('click', () => fileInput.click());
+
+        fileUploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileUploadZone.style.borderColor = 'var(--primary-color)';
+            fileUploadZone.style.background = 'rgba(99, 102, 241, 0.05)';
+        });
+
+        fileUploadZone.addEventListener('dragleave', () => {
+            fileUploadZone.style.borderColor = '';
+            fileUploadZone.style.background = '';
+        });
+
+        fileUploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileUploadZone.style.borderColor = '';
+            fileUploadZone.style.background = '';
+            
+            const files = Array.from(e.dataTransfer.files);
+            handleFiles(files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            handleFiles(files);
+        });
+
+        function handleFiles(files) {
+            selectedFiles = files;
+            
+            if (files.length === 0) {
+                fileList.innerHTML = '';
+                return;
+            }
+            
+            fileList.innerHTML = `
+                <div style="background: var(--light-bg); padding: 1rem; border-radius: 0.5rem;">
+                    <strong>${files.length} file(s) selected:</strong>
+                    <ul style="margin-top: 0.5rem; margin-left: 1.5rem; color: var(--text-secondary);">
+                        ${files.map(f => `<li>${f.name} (${(f.size / 1024).toFixed(1)} KB)</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+
+        // Form submission
+        document.getElementById('submission-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            
+            // Add selected files
+            selectedFiles.forEach(file => {
+                formData.append('files', file);
+            });
+            
+            const messageDiv = document.getElementById('submission-message');
+            const loadingOverlay = document.getElementById('loading-overlay');
+            
+            loadingOverlay.classList.remove('hidden');
+            messageDiv.innerHTML = '';
+            
+            try {
+                const response = await fetch('/api/submit', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                loadingOverlay.classList.add('hidden');
+                
+                if (response.ok) {
+                    const submission = await response.json();
+                    messageDiv.innerHTML = `
+                        <div class="alert alert-success">
+                            <strong>Success!</strong> Your project has been submitted and evaluated.
+                            <a href="/results?submission_id=${submission.id}" style="color: var(--secondary-color); text-decoration: underline;">
+                                View your results
+                            </a>
+                        </div>
+                    `;
+                    e.target.reset();
+                    selectedFiles = [];
+                    fileList.innerHTML = '';
+                    
+                    // Redirect to results after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = `/results?submission_id=${submission.id}`;
+                    }, 2000);
+                } else {
+                    const error = await response.json();
+                    messageDiv.innerHTML = `
+                        <div class="alert alert-danger">
+                            <strong>Error:</strong> ${error.error || 'Failed to submit project'}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                loadingOverlay.classList.add('hidden');
+                messageDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <strong>Error:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
+
