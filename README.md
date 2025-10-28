@@ -1,5 +1,5 @@
 ---
-title: Svelte
+title: EvalAI
 emoji: 🔥
 colorFrom: pink
 colorTo: gray
@@ -7,6 +7,8 @@ sdk: static
 pinned: false
 app_build_command: npm run build
 app_file: dist/index.html
+license: mit
+short_description: AI-Powered Project Evaluator
 ---
 
 # Svelte + TS + Vite
