@@ -1,7 +1,7 @@
 {
-  "name": "svelte",
+  "name": "evalai-frontend",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,11 +9,18 @@
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json"
   },
+  "dependencies": {
+    "axios": "^1.6.2",
+    "svelte-routing": "^2.13.0"
+  },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^5.0.3",
     "@tsconfig/svelte": "^5.0.4",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32",
     "svelte": "^5.28.1",
     "svelte-check": "^4.1.6",
+    "tailwindcss": "^3.3.6",
     "typescript": "~5.8.3",
     "vite": "^6.3.5"
   }

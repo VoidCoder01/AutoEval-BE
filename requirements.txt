@@ -1,0 +1,10 @@
+flask
+flask-cors
+flask-sqlalchemy
+python-dotenv
+werkzeug
+openai>=1.0.0
+
+# Optional utilities
+json-repair
+
