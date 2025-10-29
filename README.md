@@ -1,5 +1,4 @@
-# EvalAI – Professional Documentation
-
+# EvalAI – AI project evaluation
 Production-grade, AI-powered project evaluation. Upload a project, the backend analyzes code/docs using OpenAI GPT‑4o, and the frontend visualizes strict, differentiated scores with detailed feedback.
 
 ---
@@ -7,8 +6,7 @@ Production-grade, AI-powered project evaluation. Upload a project, the backend a
 ## 1) Architecture Overview
 
 ```
-AutoEval/                    # Backend (Flask + SQLite)
-└─ EvalAI/                   # Frontend (Svelte 5 + Vite + Tailwind)
+EvalAI/                   # Frontend (Svelte 5 + Vite + Tailwind) and # Backend (Flask + SQLite)
 ```
 
 - Backend exposes REST API, handles file uploads, extracts code/docs, chunks large content, calls OpenAI, persists results.
@@ -29,7 +27,7 @@ AutoEval/                    # Backend (Flask + SQLite)
 
 ### 3.1 Setup
 ```bash
-cd AutoEval
+cd Eval
 python -m venv .venv
 . .venv/Scripts/activate   # Windows
 # source .venv/bin/activate   # macOS/Linux
